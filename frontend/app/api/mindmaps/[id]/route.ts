@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 const API_URL = process.env.API_BASE + '/mindmap';
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
     const header = req.headers.get('authorization') || '';
     const body = await req.json();
 
     try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(`${API_URL}/${params.id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
