@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
 import { User } from '@/lib/types';
 
 interface AuthContextType {
@@ -14,13 +13,35 @@ interface AuthContextType {
 
 function parseJwt(token: string): User | null {
     try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const raw = token.split('.')[1];
+        if (!raw) {
+            console.warn("Invalid JWT: missing payload");
+            return null;
+        }
+
+        const json = atob(raw);
+        const payload = JSON.parse(json);
+        const now = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < now) {
+            return null;
+        }
+
+        const _id = payload.id || payload._id;
+        const email = payload.username || payload.email;
+        const role = payload.role;
+
+        if (!_id || !email || !role) {
+            console.warn("JWT payload missing required fields");
+            return null;
+        }
+
         return {
-            _id: payload.id,
-            email: payload.username,
-            role: payload.role,
+            _id,
+            email,
+            role,
         };
-    } catch {
+    } catch (e) {
+        console.error("Failed to parse JWT:", e);
         return null;
     }
 }
@@ -30,13 +51,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             const parsedUser = parseJwt(token);
-            setUser(parsedUser);
+            if (parsedUser) {
+                setUser(parsedUser);
+            }
+            else{
+                console.error('無法解析使用者資料');
+                localStorage.removeItem('token');
+            }
         }
         setIsLoading(false);
     }, []);

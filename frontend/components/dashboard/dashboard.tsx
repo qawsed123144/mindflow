@@ -13,8 +13,8 @@ import { Header } from '@/components/ui/header';
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
-  const { mindMaps, loading } = useMindMap();
   const { t } = useLanguage();
+  const { mindMaps, loading } = useMindMap();
   const [selectedMap, setSelectedMap] = useState<MindMap | null>(null);
 
   if (isLoading) {

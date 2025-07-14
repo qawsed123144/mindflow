@@ -3,6 +3,7 @@ const API_URL = process.env.API_BASE + '/mindmaps';
 
 export async function GET(req: NextRequest) {
     const header = req.headers.get('authorization') || '';
+    
     try {
         const res = await fetch(API_URL, {
             method: 'GET',

@@ -17,7 +17,7 @@ export function useMindMap() {
         }
 
         loadMindMaps();
-    }, [!!user])
+    }, [user])
 
     async function loadMindMaps() {
         try {
