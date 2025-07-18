@@ -14,12 +14,13 @@ export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { t } = useLanguage();
+  const [isDemoUser, setIsDemoUser] = useState(false)
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
-  const isDemoUser = formData.email === 'demo@domain.com'
+  // const isDemoUser = formData.email === 'demo@domain.com'
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,7 +54,6 @@ export function AuthForm() {
       }
     } catch (error) {
       toast.error(t.errorOccurred);
-      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +68,12 @@ export function AuthForm() {
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {isSignUp ? t.alreadyHaveAccount : t.dontHaveAccount}{' '}
           <button
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp)
+              setIsDemoUser(false)
+            }
+
+            }
             className="font-medium text-primary hover:text-primary/80 transition-colors"
           >
             {isSignUp ? t.signIn : t.signUp}
@@ -137,6 +142,7 @@ export function AuthForm() {
                   email: 'demo@domain.com',
                   password: 'demopassword',
                 });
+                setIsDemoUser(true);
               }}
             >
               {t.fillDemoCredentials}

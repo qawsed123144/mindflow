@@ -23,7 +23,7 @@ export function MindMapList({ mindMaps, onSelect, onCreateNew }: MindMapListProp
         <h1 className="text-3xl font-bold">{t.yourMindMaps}</h1>
         <Button onClick={onCreateNew} className="w-full sm:w-auto">
           <PlusIcon className="mr-2 h-4 w-4" />
-          {t.createNewMindMap}
+          {t.createNewMindMap} 
         </Button>
       </div>
 
@@ -42,7 +42,7 @@ export function MindMapList({ mindMaps, onSelect, onCreateNew }: MindMapListProp
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.isArray(mindMaps) && mindMaps.map((map) => (
             <div
-              key={map._id}
+              key={map.id}
               className="border rounded-lg p-6 hover:shadow-md dark:hover:shadow-none dark:hover:bg-gray-800 transition-all cursor-pointer"
               onClick={() => onSelect(map)}
             >

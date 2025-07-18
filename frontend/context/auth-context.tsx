@@ -10,6 +10,7 @@ interface AuthContextType {
     signOut: () => Promise<void>;
     signUp: (username: string, password: string) => Promise<User | null>;
 }
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function parseJwt(token: string): User | null {
     try {
@@ -26,17 +27,17 @@ function parseJwt(token: string): User | null {
             return null;
         }
 
-        const _id = payload.id || payload._id;
+        const id = payload.id;
         const email = payload.username || payload.email;
         const role = payload.role;
 
-        if (!_id || !email || !role) {
+        if (!id || !email || !role) {
             console.warn("JWT payload missing required fields");
             return null;
         }
 
         return {
-            _id,
+            id: id,
             email,
             role,
         };
@@ -45,8 +46,6 @@ function parseJwt(token: string): User | null {
         return null;
     }
 }
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -59,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (parsedUser) {
                 setUser(parsedUser);
             }
-            else{
+            else {
                 console.error('無法解析使用者資料');
                 localStorage.removeItem('token');
             }
@@ -76,10 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 body: JSON.stringify({ username, password }),
             });
 
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message);
+            }
+
             const data = await res.json();
 
             const token = data.token;
             if (!token) throw new Error('token not found');
+            console.log(token)
 
             const parsedUser = parseJwt(token);
             if (!parsedUser) throw new Error('無法解析使用者資料');
@@ -110,7 +115,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
 
             if (!res.ok) {
-                throw new Error('註冊失敗');
+                const errorData = await res.json();
+                throw new Error(errorData.message);
             }
 
             const data = await res.json();
@@ -128,13 +134,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error('SignUp Error:', error);
             throw error;
         }
-    };
+    }
 
     return (
         <AuthContext.Provider value={{ user, isLoading, signIn, signOut, signUp }}>
             {children}
         </AuthContext.Provider>
-    );
+    )
 }
 
 export function useAuth() {

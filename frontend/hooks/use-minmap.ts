@@ -41,11 +41,48 @@ export function useMindMap() {
         }
     }
 
+    async function createMindMap(newMap: MindMap) {
+        if (!user) return;
+
+        if (user.role === 'demo') {
+            setMindMaps(prev => [...prev, newMap])
+            return
+        }
+
+        try {
+            setLoading(true);
+
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/mindmaps`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: token ? `Bearer ${token}` : '',
+                },
+                body: JSON.stringify(newMap),
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Failed to create mind map');
+            }
+            const data = await res.json();
+
+            await loadMindMaps();
+
+            return data as MindMap;
+        } catch (err) {
+            console.error('Error creating mind maps', err);
+        }
+        finally {
+            setLoading(false);
+        }
+    }
+
     async function updateMindMap(id: string, updates: Partial<MindMap>) {
         if (!user) return;
 
         if (user.role === 'demo') {
-            setMindMaps((prev => prev.map(m => m._id === id ? { ...m, ...updates } : m)))
+            setMindMaps((prev => prev.map(m => m.id === id ? { ...m, ...updates } : m)))
             return
         }
 
@@ -78,5 +115,5 @@ export function useMindMap() {
     }
 
 
-    return { mindMaps, setMindMaps, updateMindMap, loading, }
+    return { mindMaps, setMindMaps, createMindMap, updateMindMap, loading, }
 }

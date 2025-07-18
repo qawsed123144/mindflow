@@ -48,19 +48,17 @@ export default function Dashboard() {
               mindMaps={mindMaps}
               onSelect={setSelectedMap}
               onCreateNew={() => {
-                // Create a new empty mind map with default values
                 const newMap: MindMap = {
-                  _id: `map-${Date.now()}`,
                   title: t.untitledMindMap,
                   description: '',
                   nodes: [],
                   edges: [],
-                  createdBy: user._id,
+                  createdBy: user.id,
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
                   collaborators: [
                     {
-                      user_id: user._id,
+                      user_id: user.id,
                       role: 'viewer'
                     }
                   ]

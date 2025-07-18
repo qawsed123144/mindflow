@@ -54,7 +54,7 @@ export function TaskModal({ task, nodeId, onUpdate, onCancel, currentUser }: Tas
     const newHistory: TaskHistory = {
       id: generateId(),
       timestamp: new Date().toISOString(),
-      user: currentUser.name,
+      user: currentUser.email,
       action: 'note',
       note: noteText,
     };
@@ -73,7 +73,7 @@ export function TaskModal({ task, nodeId, onUpdate, onCancel, currentUser }: Tas
     const newHistory: TaskHistory = {
       id: generateId(),
       timestamp: new Date().toISOString(),
-      user: currentUser.name,
+      user: currentUser.email,
       action: 'status-change',
       previousStatus: editedTask.status,
       currentStatus: status,
@@ -93,7 +93,7 @@ export function TaskModal({ task, nodeId, onUpdate, onCancel, currentUser }: Tas
       const newHistory: TaskHistory = {
         id: generateId(),
         timestamp: new Date().toISOString(),
-        user: currentUser.name,
+        user: currentUser.email,
         action: 'progress-change',
         previousProgress: editedTask.progress,
         currentProgress: progress,

@@ -13,7 +13,7 @@ export interface Node {
 }
 
 export interface Edge {
-  _id: string;
+  id: string;
   source: string;
   target: string;
   type?: string;
@@ -23,7 +23,7 @@ export interface Edge {
 }
 
 export interface Task {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   status: 'not-started' | 'in-progress' | 'completed';
@@ -36,7 +36,7 @@ export interface Task {
 }
 
 export interface TaskHistory {
-  _id: string;
+  id: string;
   timestamp: string;
   user: string;
   action: string;
@@ -48,7 +48,7 @@ export interface TaskHistory {
 }
 
 export interface MindMap {
-  _id: string;
+  id?: string;
   title: string;
   description: string;
   nodes: Node[];
@@ -56,7 +56,7 @@ export interface MindMap {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
-  collaborators: [
+  collaborators?: [
     {
       user_id: string,
       role: 'viewer' | 'editor' | 'owner'
@@ -65,7 +65,7 @@ export interface MindMap {
 }
 
 export interface User {
-  _id: string;
+  id: string;
   email: string;
   role: 'demo' | 'user' | 'admin';
   image?: string;

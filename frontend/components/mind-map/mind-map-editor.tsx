@@ -60,7 +60,7 @@ export function MindMapEditorContent({
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     mindMap.edges.map((e) => ({
-      id: e._id,
+      id: e.id,
       source: e.source,
       target: e.target,
       type: e.type,
@@ -72,12 +72,13 @@ export function MindMapEditorContent({
   const [selectedTask, setSelectedTask] = useState<{ task: Task; nodeId: string } | null>(null);
   const [isImageUploadOpen, setIsImageUploadOpen] = useState(false);
   const reactFlowInstance = useReactFlow();
-  const { updateMindMap } = useMindMap();
+  const { createMindMap, updateMindMap } = useMindMap();
 
   // Auto-save timer
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [currentMindMap, setCurrentMindMap] = useState<MindMap>(mindMap);
 
   // Handle node selection for task editing
   const onNodeClick = useCallback(
@@ -94,7 +95,7 @@ export function MindMapEditorContent({
       } else {
         // Create a new task for this node
         const newTask: Task = {
-          _id: generateId(),
+          id: generateId(),
           title: node.data.label,
           description: '',
           status: 'not-started',
@@ -105,7 +106,7 @@ export function MindMapEditorContent({
           updatedAt: new Date().toISOString(),
           history: [
             {
-              _id: generateId(),
+              id: generateId(),
               timestamp: new Date().toISOString(),
               user: currentUser.email,
               action: 'created',
@@ -173,12 +174,12 @@ export function MindMapEditorContent({
     setUnsavedChanges(true);
   }, [reactFlowInstance, setNodes]);
 
+
   // Handle saving the mind map
   const handleSave = useCallback(async () => {
-    const updatedMindMap: MindMap = {
-      ...mindMap,
-      title,
-      description,
+    const mindMapData = {
+      title: title,
+      description: description,
       nodes: nodes.map((n) => ({
         id: n.id,
         type: n.type as 'default' | 'input' | 'output' | 'custom',
@@ -187,7 +188,7 @@ export function MindMapEditorContent({
         style: n.style,
       })),
       edges: edges.map((e) => ({
-        _id: e.id,
+        id: e.id,
         source: e.source,
         target: e.target,
         type: e.type,
@@ -195,14 +196,27 @@ export function MindMapEditorContent({
         style: e.style,
         label: typeof e.label === 'string' ? e.label : undefined,
       })),
+      createdBy: currentUser.id,
+      createdAt: currentMindMap.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    await updateMindMap(mindMap._id, updatedMindMap);
-    setLastSaved(new Date());
-    setUnsavedChanges(false);
-    toast.success(t.mindMapSavedSuccess);
-  }, [mindMap, title, description, nodes, edges, updateMindMap, t]);
+    try {
+      if (!currentMindMap.id) {
+        const created = await createMindMap(mindMapData);
+        if (created) setCurrentMindMap(created);
+        toast.success(t.mindMapSavedSuccess);
+      } else {
+        await updateMindMap(currentMindMap.id, mindMapData);
+        setCurrentMindMap(prev => ({ ...prev, ...mindMapData }));
+        toast.success(t.mindMapSavedSuccess);
+      }
+      setLastSaved(new Date());
+      setUnsavedChanges(false);
+    } catch (error: any) {
+      toast.error(error.message || '儲存心智圖失敗');
+    }
+  }, [currentMindMap, title, description, nodes, edges, createMindMap, updateMindMap, t]);
 
   // Handle task update
   const handleTaskUpdate = useCallback((task: Task, nodeId: string) => {

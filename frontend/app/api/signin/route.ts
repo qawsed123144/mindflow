@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         const data = await res.json();
         return NextResponse.json(data);
     } catch (error) {
-        console.error("Login API error:", error);
+        console.error("Signin API error:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }

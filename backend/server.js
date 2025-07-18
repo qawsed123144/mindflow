@@ -45,7 +45,7 @@ const TaskHistorySchema = new mongoose.Schema({
 const TaskSchema = new mongoose.Schema({
     id: { type: String, required: true },
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String},
     status: { type: String, enum: ['not-started', 'in-progress', 'completed'], required: true },
     progress: { type: Number, required: true },
     assignedTo: { type: String, default: null },
@@ -80,7 +80,7 @@ const EdgeSchema = new mongoose.Schema({
 });
 
 const MindMapSchema = new mongoose.Schema({
-    id: { type: String, required: true },
+    id: { type: String},
     title: { type: String, required: true },
     description: { type: String, default: '' },
     nodes: { type: [NodeSchema], default: [] },
@@ -126,14 +126,18 @@ app.post('/signin', async (req, res) => {
         return res.json({ token });
     }
 
-
     try {
         const user = await User.findOne({ username });
-        if (!user || user.passwordHash !== password) {
+        if (!user) {
             return res.status(401).json({ message: '帳號或密碼錯誤' });
         }
 
-        const token = jwt.sign({ username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const passwordMatch = bcrypt.compare(password, user.passwordHash);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: '帳號或密碼錯誤' });
+        }
+
+        const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.json({ token });
     } catch (err) {
         console.log(err)
@@ -210,7 +214,7 @@ app.get('/mindmaps', authenticateToken, async (req, res) => {
 });
 
 
-app.post('/mindmap', authenticateToken, async (req, res) => {
+app.post('/mindmaps', authenticateToken, async (req, res) => {
     if (req.user.role === 'demo') {
         return res.status(403).json({ error: 'Demo user 無新增權限' });
     }
@@ -218,16 +222,19 @@ app.post('/mindmap', authenticateToken, async (req, res) => {
     try {
         const data = req.body;
         data.createdBy = Types.ObjectId.createFromHexString(req.user.id);
-
         const mindmap = new MindMap(data);
-        await mindmap.save();
+        try {
+            await mindmap.save();
+        } catch (saveErr) {
+            return res.status(400).json({ error: saveErr.message });
+        }
         res.status(201).json(mindmap);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
 });
 
-app.patch('/mindmap/:id', authenticateToken, async (req, res) => {
+app.patch('/mindmaps/:id', authenticateToken, async (req, res) => {
     if (req.user.role === 'demo') {
         return res.status(403).json({ error: 'Demo user 無修改權限' });
     }
