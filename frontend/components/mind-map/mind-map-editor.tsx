@@ -72,7 +72,7 @@ export function MindMapEditorContent({
   const [selectedTask, setSelectedTask] = useState<{ task: Task; nodeId: string } | null>(null);
   const [isImageUploadOpen, setIsImageUploadOpen] = useState(false);
   const reactFlowInstance = useReactFlow();
-  const { createMindMap, updateMindMap } = useMindMap();
+  const { createMindMap, updateMindMap} = useMindMap();
 
   // Auto-save timer
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,17 +202,17 @@ export function MindMapEditorContent({
     };
 
     try {
-      if (!currentMindMap.id) {
+      if (!currentMindMap._id) {
         const created = await createMindMap(mindMapData);
         if (created) setCurrentMindMap(created);
         toast.success(t.mindMapSavedSuccess);
       } else {
-        await updateMindMap(currentMindMap.id, mindMapData);
+        await updateMindMap(currentMindMap._id, mindMapData);
         setCurrentMindMap(prev => ({ ...prev, ...mindMapData }));
         toast.success(t.mindMapSavedSuccess);
       }
       setLastSaved(new Date());
-      setUnsavedChanges(false);
+      setUnsavedChanges(false); 
     } catch (error: any) {
       toast.error(error.message || '儲存心智圖失敗');
     }

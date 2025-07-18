@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useAuth } from '@/context/auth-context';
 import { useMindMap } from '@/hooks/use-minmap';
@@ -14,7 +14,7 @@ import { Header } from '@/components/ui/header';
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
   const { t } = useLanguage();
-  const { mindMaps, loading } = useMindMap();
+  const { mindMaps, loading, loadMindMaps } = useMindMap();
   const [selectedMap, setSelectedMap] = useState<MindMap | null>(null);
 
   if (isLoading) {
@@ -70,7 +70,11 @@ export default function Dashboard() {
         ) : (
           <MindMapEditor
             mindMap={selectedMap}
-            onBack={() => setSelectedMap(null)}
+            onBack={() => {
+              setSelectedMap(null)
+              loadMindMaps();
+            }
+            }
             currentUser={user}
           />
         )}

@@ -48,7 +48,7 @@ export interface TaskHistory {
 }
 
 export interface MindMap {
-  id?: string;
+  _id?: string;
   title: string;
   description: string;
   nodes: Node[];

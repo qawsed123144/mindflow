@@ -42,7 +42,7 @@ export function MindMapList({ mindMaps, onSelect, onCreateNew }: MindMapListProp
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.isArray(mindMaps) && mindMaps.map((map) => (
             <div
-              key={map.id}
+              key={map._id}
               className="border rounded-lg p-6 hover:shadow-md dark:hover:shadow-none dark:hover:bg-gray-800 transition-all cursor-pointer"
               onClick={() => onSelect(map)}
             >

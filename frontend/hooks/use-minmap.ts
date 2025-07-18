@@ -15,8 +15,6 @@ export function useMindMap() {
             setLoading(false)
             return
         }
-
-        loadMindMaps();
     }, [user])
 
     async function loadMindMaps() {
@@ -66,9 +64,6 @@ export function useMindMap() {
                 throw new Error(errorData.message || 'Failed to create mind map');
             }
             const data = await res.json();
-
-            await loadMindMaps();
-
             return data as MindMap;
         } catch (err) {
             console.error('Error creating mind maps', err);
@@ -82,7 +77,7 @@ export function useMindMap() {
         if (!user) return;
 
         if (user.role === 'demo') {
-            setMindMaps((prev => prev.map(m => m.id === id ? { ...m, ...updates } : m)))
+            setMindMaps((prev => prev.map(m => m._id === id ? { ...m, ...updates } : m)))
             return
         }
 
@@ -103,8 +98,6 @@ export function useMindMap() {
                 throw new Error(errorData.message || 'Failed to update mind map');
             }
 
-            await loadMindMaps();
-
         } catch (err) {
             console.error('Error updating mind maps', err);
         }
@@ -115,5 +108,5 @@ export function useMindMap() {
     }
 
 
-    return { mindMaps, setMindMaps, createMindMap, updateMindMap, loading, }
+    return { mindMaps, setMindMaps,loadMindMaps, createMindMap, updateMindMap, loading, }
 }
